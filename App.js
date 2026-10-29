@@ -1,48 +1,34 @@
 import { useState } from "react";
-import {
-  Button,
-  FlatList,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
+import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 
 export default function App() {
-  const [enteredGoalText, setEnteredGoalText] = useState("");
   const [goals, setGoals] = useState([]);
 
-  function goalInputHandler(enteredText) {
-    setEnteredGoalText(enteredText);
-  }
-
-  function addGoalHandler() {
-    setGoals((currentGoals) => [...currentGoals, enteredGoalText]);
-    setEnteredGoalText("");
+  function addGoalHandler(enteredGoalText) {
+    if (enteredGoalText === "") {
+      return;
+    }
+    setGoals((currentGoals) => [
+      ...currentGoals,
+      { text: enteredGoalText, id: Math.random().toString() },
+    ]);
   }
 
   return (
     <View style={styles.appContainer}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          value={enteredGoalText}
-          style={styles.textInput}
-          placeholder="Course Goal"
-          onChangeText={goalInputHandler}
-        />
-        <Button color="#5e0acc" title="Add Goal" onPress={addGoalHandler} />
-      </View>
+      <GoalInput onAddGoal={addGoalHandler} />
+
       <View style={styles.goalsContainer}>
-        <Text>List of Goals</Text>
+        <Text style={styles.sectionTitle}>List of Goals</Text>
         <FlatList
+          style={styles.goalList}
+          contentContainerStyle={styles.goalListContent}
           data={goals}
-          renderItem={(itemData) => {
-            return (
-              <View style={styles.goalItem}>
-                <Text style={styles.goalText}>{itemData.item}</Text>
-              </View>
-            );
-          }}
+          renderItem={({ item }) => <GoalItem text={item.text} />}
+          keyExtractor={(item) => item.id}
+          alwaysBounceVertical={false}
         />
       </View>
     </View>
@@ -54,24 +40,21 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 50,
     paddingHorizontal: 16,
-  },
-  inputContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: "#cccccc",
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: "#cccccc",
-    width: "70%",
-    marginRight: 8,
-    padding: 8,
+    backgroundColor: "#ffffff",
   },
   goalsContainer: {
-    flex: 5,
+    flex: 1,
+  },
+  sectionTitle: {
+    marginBottom: 16,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#25143d",
+  },
+  goalList: {
+    flex: 1,
+  },
+  goalListContent: {
+    paddingBottom: 32,
   },
 });
