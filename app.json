@@ -12,6 +12,7 @@
       "bundleIdentifier": "com.anonymous.reactnativeapp"
     },
     "android": {
+      "softwareKeyboardLayoutMode": "resize",
       "package": "com.anonymous.reactnativeapp",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
