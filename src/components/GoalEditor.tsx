@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type ComponentRef } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router, usePreventRemove } from 'expo-router';
 import { ActionButton, Choice, ErrorNotice, Screen, typography } from './ui';
@@ -14,7 +14,7 @@ export function GoalEditor({ goal }: { goal?: Goal }) {
   const [leaving, setLeaving] = useState(false);
   const [pendingLeave, setPendingLeave] = useState<(() => void) | null>(null);
   const { saveGoal, saving, error } = useGoals();
-  const titleRef = useRef<TextInput>(null);
+  const titleRef = useRef<ComponentRef<typeof TextInput>>(null);
   const dirty = JSON.stringify(draft) !== JSON.stringify(initial);
   const disablePrevention = usePreventRemove(!leaving && (dirty || saving), ({ repeat }) => {
     if (!saving) setPendingLeave(() => repeat);

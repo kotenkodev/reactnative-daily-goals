@@ -1,11 +1,13 @@
 import { Modal, StyleSheet, Text, View } from 'react-native';
 import { ActionButton, typography } from './ui';
 import { colors } from '../theme';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 export function ConfirmDialog({ visible, title, message, confirmLabel, onCancel, onConfirm }: {
   visible: boolean; title: string; message: string; confirmLabel: string; onCancel: () => void; onConfirm: () => void;
 }) {
-  return <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
+  const reducedMotion = useReducedMotion();
+  return <Modal visible={visible} transparent animationType={reducedMotion ? 'none' : 'fade'} onRequestClose={onCancel}>
     <View style={styles.scrim}><View style={styles.dialog} accessibilityViewIsModal>
       <Text accessibilityRole="header" style={typography.heading}>{title}</Text>
       <Text style={typography.body}>{message}</Text>
