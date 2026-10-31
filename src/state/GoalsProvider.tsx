@@ -18,8 +18,6 @@ function useGoalStore() {
   const [deleted, setDeleted] = useState<Goal[]>([]);
 
   const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const saved = parseGoals(await AsyncStorage.getItem(STORAGE_KEY));
       current.current = saved;
@@ -33,6 +31,12 @@ function useGoalStore() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+
+  const retryLoad = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    return load();
+  }, [load]);
 
   const commit = useCallback(async (update: (value: Goal[]) => Goal[]) => {
     if (busy.current || !ready) return false;
@@ -91,7 +95,7 @@ function useGoalStore() {
     return success;
   }, [commit, deleted]);
 
-  return { goals, ready, loading, saving, error, load, saveGoal, toggleGoal, deleteGoals, undoDelete, deleted, dismissUndo: () => setDeleted([]) };
+  return { goals, ready, loading, saving, error, load: retryLoad, saveGoal, toggleGoal, deleteGoals, undoDelete, deleted, dismissUndo: () => setDeleted([]) };
 }
 
 const GoalsContext = createContext<ReturnType<typeof useGoalStore> | null>(null);
