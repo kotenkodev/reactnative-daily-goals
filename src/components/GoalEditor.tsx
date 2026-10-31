@@ -12,6 +12,7 @@ export function GoalEditor({ goal }: { goal?: Goal }) {
   const [draft, setDraft] = useState<GoalDraft>(initial);
   const [validation, setValidation] = useState<string | null>(null);
   const [leaving, setLeaving] = useState(false);
+  const [focused, setFocused] = useState<'title' | 'notes' | null>(null);
   const [pendingLeave, setPendingLeave] = useState<(() => void) | null>(null);
   const { saveGoal, saving, error } = useGoals();
   const titleRef = useRef<ComponentRef<typeof TextInput>>(null);
@@ -42,19 +43,21 @@ export function GoalEditor({ goal }: { goal?: Goal }) {
           <Text nativeID="goal-title-label" style={typography.label}>What would you like to do?</Text>
           <TextInput ref={titleRef} accessibilityLabel="Goal title" accessibilityLabelledBy="goal-title-label" value={draft.title}
             onChangeText={(title) => { setDraft({ ...draft, title }); setValidation(null); }} editable={!saving} maxLength={120}
-            placeholder="Read a chapter before bed" placeholderTextColor={colors.muted} style={styles.titleInput} multiline textAlignVertical="top" />
+            onFocus={() => setFocused('title')} onBlur={() => setFocused(null)} selectionColor={colors.accent}
+            placeholder="Read a chapter before bed" placeholderTextColor={colors.muted} style={[styles.titleInput, focused === 'title' && styles.focused, !!validation && styles.invalid]} multiline textAlignVertical="top" />
           <Text style={styles.counter}>{draft.title.length}/120</Text>
         </View>
         <View style={styles.field}><Text style={typography.label}>Category</Text><View style={styles.choices}>
-          {categories.map((category) => <Choice key={category} label={category} selected={draft.category === category} onPress={() => !saving && setDraft({ ...draft, category })} />)}
+          {categories.map((category) => <Choice key={category} label={category} disabled={saving} selected={draft.category === category} onPress={() => setDraft({ ...draft, category })} />)}
         </View></View>
         <View style={styles.field}><Text style={typography.label}>Priority</Text><View style={styles.choices}>
-          <Choice label="Normal" selected={draft.priority === 'normal'} onPress={() => !saving && setDraft({ ...draft, priority: 'normal' })} />
-          <Choice label="High priority" selected={draft.priority === 'high'} onPress={() => !saving && setDraft({ ...draft, priority: 'high' })} />
+          <Choice label="Normal" disabled={saving} selected={draft.priority === 'normal'} onPress={() => setDraft({ ...draft, priority: 'normal' })} />
+          <Choice label="High priority" disabled={saving} selected={draft.priority === 'high'} onPress={() => setDraft({ ...draft, priority: 'high' })} />
         </View></View>
         <View style={styles.field}><Text style={typography.label}>Notes <Text style={typography.muted}> · optional</Text></Text>
           <TextInput accessibilityLabel="Goal notes, optional" value={draft.notes} onChangeText={(notes) => setDraft({ ...draft, notes })}
-            editable={!saving} multiline maxLength={2000} placeholder="A first step, a reason, or a useful reminder…" placeholderTextColor={colors.muted} style={styles.notes} textAlignVertical="top" />
+            onFocus={() => setFocused('notes')} onBlur={() => setFocused(null)} selectionColor={colors.accent}
+            editable={!saving} multiline maxLength={2000} placeholder="A first step, a reason, or a useful reminder…" placeholderTextColor={colors.muted} style={[styles.notes, focused === 'notes' && styles.focused]} textAlignVertical="top" />
         </View>
         <ErrorNotice message={validation || error} />
         <ActionButton label={saving ? 'Saving…' : goal ? 'Save changes' : 'Add goal'} busy={saving} onPress={() => void submit()} />
@@ -76,4 +79,6 @@ const styles = StyleSheet.create({
   choices: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
   notes: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: 12, padding: 16, minHeight: 128, fontSize: 16, lineHeight: 24, color: colors.ink },
   footnote: { textAlign: 'center', fontSize: 12, color: colors.muted },
+  focused: { borderColor: colors.accent, backgroundColor: '#FCFEFC' },
+  invalid: { borderColor: colors.danger },
 });

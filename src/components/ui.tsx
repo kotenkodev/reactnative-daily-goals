@@ -25,9 +25,9 @@ export function ActionButton({ label, variant = 'primary', busy = false, disable
   </Pressable>;
 }
 
-export function Choice({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
-  return <Pressable accessibilityRole="button" accessibilityState={{ selected }} onPress={onPress}
-    android_ripple={{ color: colors.ripple }} style={({ pressed }) => [styles.choice, selected && styles.selected, pressed && styles.pressed]}>
+export function Choice({ label, selected, onPress, disabled = false }: { label: string; selected: boolean; onPress: () => void; disabled?: boolean }) {
+  return <Pressable accessibilityRole="button" accessibilityState={{ selected, disabled }} disabled={disabled} onPress={onPress}
+    android_ripple={{ color: colors.ripple }} style={({ pressed }) => [styles.choice, selected && styles.selected, pressed && styles.pressed, disabled && styles.disabled]}>
     <Text style={[styles.choiceText, selected && styles.selectedText]}>{label}</Text>
   </Pressable>;
 }

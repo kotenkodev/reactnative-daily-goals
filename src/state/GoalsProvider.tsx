@@ -3,6 +3,7 @@ import { randomUUID } from 'expo-crypto';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cleanDraft, parseGoals, serializeGoals, validateDraft, type Goal, type GoalDraft } from '../domain/goals';
 import { successFeedback } from '../utils/feedback';
+import { AccessibilityInfo } from 'react-native';
 
 const STORAGE_KEY = '@fieldnotes/goals/v1';
 
@@ -67,9 +68,15 @@ function useGoalStore() {
       : [{ ...clean, id: randomUUID(), completed: false, createdAt: new Date().toISOString(), completedAt: null }, ...items]);
   }, [commit]);
 
-  const toggleGoal = useCallback((id: string) => commit((items) => items.map((goal) => goal.id === id
-    ? { ...goal, completed: !goal.completed, completedAt: goal.completed ? null : new Date().toISOString() }
-    : goal)), [commit]);
+  const toggleGoal = useCallback(async (id: string) => {
+    const goal = current.current.find((item) => item.id === id);
+    if (!goal) return false;
+    const success = await commit((items) => items.map((item) => item.id === id
+      ? { ...item, completed: !item.completed, completedAt: item.completed ? null : new Date().toISOString() }
+      : item));
+    if (success) AccessibilityInfo.announceForAccessibility(goal.completed ? 'Goal reopened' : 'Goal completed');
+    return success;
+  }, [commit]);
 
   const deleteGoals = useCallback(async (ids: string[]) => {
     const removed = current.current.filter((goal) => ids.includes(goal.id));
